@@ -17,7 +17,7 @@ public class LocalUser {
     @Column(name = "username", nullable = false, unique = true) // ini juga nilainya tidak boleh kosong dan harus unik
     private String username;
 
-    @Column(name = "password", nullable = false, unique = true, length = 1000)
+    @Column(name = "password", nullable = false, length = 1000)
     private String password;
 
     @Column(name = "email", nullable = false, unique = true, length = 320)
