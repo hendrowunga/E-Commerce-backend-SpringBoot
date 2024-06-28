@@ -2,17 +2,16 @@ package com.Backend.SpringBoot.E_Commerce_backend.api.model;
 
 import jakarta.validation.constraints.*;
 /*
- @NotNull=Memastikan password tidak null.
-  @NotBlank=Memastikan password bukan string kosong atau hanya berisi spasi.
- @(min = 6, max = 32) =Memastikan password memiliki panjang minimal 6 karakter dan maksimal 32 karakter.
- @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{6,}$"):Memastikan password mengandung setidaknya satu huruf dan satu angka, serta terdiri dari huruf dan angka saja dengan panjang minimal 6 karakter.
+ @NotNull:Memastikan password tidak null.
+  @NotBlank:Memastikan password bukan string kosong atau hanya berisi spasi.
+ @Size(min = 6,max = 32) :Memastikan password memiliki panjang minimal 6 karakter dan maksimal 32 karakter.
+ @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{6,}$"): Memastikan password mengandung setidaknya satu huruf dan satu angka, serta terdiri dari huruf dan angka saja dengan panjang minimal 6 karakter.
  */
 public class RegistrationBody {
 
     @NotNull
     @NotBlank
-    @Min(3)
-    @Max(255)
+    @Size(min = 3,max = 255)
     private String username;
 
     @NotNull
@@ -22,9 +21,8 @@ public class RegistrationBody {
 
     @NotNull
     @NotBlank
-    @Min(6)
+    @Size(min = 6,max = 32)
     @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{6,}$")
-    @Max(32)
     private String password;
 
     @NotNull
