@@ -1,5 +1,7 @@
 package com.Backend.SpringBoot.E_Commerce_backend.api.controller.auth;
 
+import com.Backend.SpringBoot.E_Commerce_backend.api.model.LoginBody;
+import com.Backend.SpringBoot.E_Commerce_backend.api.model.LoginResponse;
 import com.Backend.SpringBoot.E_Commerce_backend.api.model.RegistrationBody;
 import com.Backend.SpringBoot.E_Commerce_backend.exception.UserAlreadyExistsException;
 import com.Backend.SpringBoot.E_Commerce_backend.services.UserServices;
@@ -30,14 +32,25 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity registerUser(@Valid @RequestBody RegistrationBody registrationBody) {
+    public ResponseEntity<LoginResponse> registerUser(@Valid @RequestBody RegistrationBody registrationBody) {
         try {
             userServices.registerUser(registrationBody);
             return ResponseEntity.ok().build();
-        }catch (UserAlreadyExistsException ex){
+        } catch (UserAlreadyExistsException ex) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }
 
+    @PostMapping("/login")
+    public ResponseEntity loginUser(@Valid @RequestBody LoginBody loginBody) {
+        String jwt = userServices.loginUser(loginBody);
+        if (jwt == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } else {
+            LoginResponse response = new LoginResponse();
+            response.setJwt(jwt);
+            return ResponseEntity.ok(response);
+        }
+    }
 
 }
