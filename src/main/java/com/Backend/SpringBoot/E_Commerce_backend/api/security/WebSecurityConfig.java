@@ -4,24 +4,38 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 
 /*
-@Configuration : Anotasi ini menandakan bahwa kelas WebSecurityConfig adalah sebuah konfigurasi untuk aplikasi Spring.
-Metode securityFilterChain : Metode ini menggunakan anotasi"@Bean" yang menghasilkan object SecurityFilterChain,yang menentukan bagaimana permintaan HTTP akan diatur dari sisi keamanan.
-Konfigurasi HttpSecurity   : Objek HttpSecurity digunakan untuk mengonfigurasi aturan keamanan pada aplikasi. Dalam contoh ini:
-.csrf(csrf -> csrf.disable()): Menonaktifkan proteksi CSRF. CSRF (Cross-Site Request Forgery) adalah serangan yang mengeksploitasi sesi yang sudah ada antara pengguna dan aplikasi untuk menjalankan aksi tanpa pengetahuan pengguna.
-.cors(cors -> cors.disable()): Menonaktifkan konfigurasi CORS. CORS (Cross-Origin Resource Sharing) mengatur akses lintas domain untuk sumber daya web.
-.authorizeHttpRequests(auth -> auth.anyRequest().permitAll()): Mengizinkan semua permintaan (.anyRequest()) untuk diakses tanpa otentikasi atau otorisasi tambahan (.permitAll()). Ini berarti semua endpoint pada aplikasi akan tersedia untuk diakses oleh siapa saja tanpa memerlukan autentikasi.
-*/
+@Configuration: menandakan bahwa kelas WebSecurityConfig adalah kelas konfigurasi untuk aplikasi Spring.
+WebSecurityConfig:menggunakan @Bean untuk menyediakan objek SecurityFilterChain, yang mendefinisikan bagaimana permintaan HTTP akan diatur dari sisi keamanan.
+Konstruktor WebSecurityConfig: menerima JWTRequestFilter sebagai dependensi, yang digunakan untuk melakukan filter permintaan berdasarkan token JWT.
+Metode securityFilterChain: menggunakan objek HttpSecurity untuk mengonfigurasi aturan keamanan:
+    .addFilterBefore(jwtRequestFilter, AuthorizationFilter.class): Menambahkan JWTRequestFilter sebelum filter otorisasi bawaan Spring Security.
+    .csrf(csrf -> csrf.disable()): Menonaktifkan proteksi CSRF untuk mencegah serangan Cross-Site Request Forgery.
+    .cors(cors -> cors.disable()): Menonaktifkan konfigurasi CORS untuk mengontrol akses lintas domain.
+    .authorizeHttpRequests(auth -> ...): Mengatur izin akses untuk permintaan HTTP:
+    .requestMatchers("/product", "/auth/register", "/auth/login").permitAll(): Mengizinkan akses tanpa autentikasi ke endpoint /product, /auth/register, dan /auth/login.
+    .anyRequest().authenticated(): Membutuhkan autentikasi untuk semua endpoint lainnya yang tidak terdaftar sebelumnya.*/
 @Configuration
 public class WebSecurityConfig {
+    private JWTRequestFilter jwtRequestFilter;
+
+    public WebSecurityConfig(JWTRequestFilter jwtRequestFilter) {
+        this.jwtRequestFilter = jwtRequestFilter;
+    }
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .addFilterBefore(jwtRequestFilter, AuthorizationFilter.class)
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.disable())
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+                .authorizeHttpRequests(auth ->
+                        auth
+                                .requestMatchers("/product","/auth/register","/auth/login").permitAll()
+                                .anyRequest().authenticated());
         return http.build();
     }
 }
