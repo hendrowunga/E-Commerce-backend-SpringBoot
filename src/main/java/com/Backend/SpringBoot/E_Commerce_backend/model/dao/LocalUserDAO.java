@@ -1,7 +1,7 @@
 package com.Backend.SpringBoot.E_Commerce_backend.model.dao;
 
 import com.Backend.SpringBoot.E_Commerce_backend.model.LocalUser;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.ListCrudRepository;
 
 import java.util.Optional;
 /*
@@ -11,7 +11,7 @@ Optional<LocalUser> findByUsernameIgnoreCase(String username): Mendeklarasikan m
 extends CrudRepository<LocalUser, Long>: LocalUserDAO mewarisi dari CrudRepository dengan tipe entitas LocalUser dan tipe kunci utama Long. Ini memberikan metode CRUD standar seperti save, findById, findAll, delete, dll.
  */
 
-public interface LocalUserDAO extends CrudRepository<LocalUser, Long> {
+public interface LocalUserDAO extends ListCrudRepository<LocalUser, Long> {
 
     Optional<LocalUser> findByUsernameIgnoreCase(String username);
 

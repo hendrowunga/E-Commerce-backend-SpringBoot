@@ -1,5 +1,6 @@
 package com.Backend.SpringBoot.E_Commerce_backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 
@@ -23,7 +24,7 @@ public class Address {
 
     @Column(name = "country", nullable = false, length = 75)
     private String country;
-
+    @JsonIgnore
     @ManyToOne(optional = false) // Menandakan hubungan banyak-ke-satu antara Address dan LocalUser, dengan atribut optional = false yang berarti setiap alamat harus memiliki pengguna.
     @JoinColumn(name = "user_id", nullable = false) // Menentukan kolom "user_id" sebagai kunci asing yang mengacu pada kolom id dalam tabel "local_user", dan kolom ini tidak boleh null.
     private LocalUser user;
