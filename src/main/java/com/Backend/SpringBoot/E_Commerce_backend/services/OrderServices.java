@@ -21,3 +21,8 @@ public class OrderServices {
         return webOrderDAO.findByUser(user);
     }
 }
+/*
+OrderServices adalah kelas yang membantu kita mengelola semua hal tentang pesanan di toko online.
+Di dalamnya, kita menggunakan WebOrderDAO (Data Access Object) untuk mengakses data dari database terkait pesanan.
+Fungsinya getOrders akan mengembalikan daftar pesanan berdasarkan pengguna yang diberikan (LocalUser).
+ */

@@ -24,3 +24,10 @@ public class OrderController {
         return orderServices.getOrders(user);
     }
 }
+/*
+OrderController adalah kelas yang menangani permintaan terkait pesanan dari aplikasi klien.
+Di dalamnya, terdapat metode getOrders yang digunakan untuk mendapatkan daftar pesanan dari pengguna yang sedang login.
+@GetMapping menandakan bahwa metode ini menanggapi permintaan HTTP GET ke endpoint /order, yang berarti aplikasi klien dapat meminta daftar pesanan melalui URL tersebut.
+@AuthenticationPrincipal LocalUser user digunakan untuk mendapatkan informasi pengguna yang sedang login, sehingga kita dapat mengetahui pesanan dari pengguna tersebut.
+Kita menggunakan OrderServices untuk memproses permintaan dan mengambil daftar pesanan dari pengguna yang sedang login.
+ */

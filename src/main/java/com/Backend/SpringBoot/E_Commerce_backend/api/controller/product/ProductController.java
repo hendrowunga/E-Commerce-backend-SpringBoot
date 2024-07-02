@@ -22,3 +22,10 @@ public class ProductController {
         return productServices.getProducts();
     }
 }
+/*
+ProductController adalah kelas yang menangani permintaan terkait produk dari aplikasi klien.
+Di dalamnya, terdapat metode getProducts yang digunakan untuk mendapatkan daftar semua produk yang tersedia.
+@GetMapping menandakan bahwa metode ini menanggapi permintaan HTTP GET ke endpoint /product, yang berarti aplikasi klien dapat meminta daftar produk melalui URL tersebut.
+Kita menggunakan ProductServices untuk memproses permintaan dan mengambil daftar produk dari database atau sumber data lainnya.
+Kontroler ini memungkinkan aplikasi klien untuk mengambil informasi produk yang tersedia dari backend, seperti nama produk, harga, dan deskripsi.
+ */

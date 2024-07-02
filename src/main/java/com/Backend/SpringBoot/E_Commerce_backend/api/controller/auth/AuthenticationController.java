@@ -44,26 +44,13 @@ Metode ini memanggil userServices.loginUser untuk memverifikasi kredensial pengg
 
 /*
 ILUSTRASI:
-
-Registrasi Pengguna:
-Permintaan: Pengguna mengirimkan permintaan POST ke /auth/register dengan JSON payload yang berisi informasi pendaftaran (username, email, password, dll.).
-Proses:
-AuthenticationController memanggil userServices.registerUser.
-userServices memeriksa apakah pengguna sudah ada.
-Jika pengguna baru, userServices menyimpan pengguna ke database.
-Respons:
-Jika sukses, mengembalikan HTTP 200 OK.
-Jika pengguna sudah ada, mengembalikan HTTP 409 CONFLICT.
-
-Login Pengguna:
-Permintaan: Pengguna mengirimkan permintaan POST ke /auth/login dengan JSON payload yang berisi informasi login (username dan password).
-Proses:
-AuthenticationController memanggil userServices.loginUser.
-userServices memverifikasi kredensial pengguna.
-Jika berhasil, userServices menghasilkan JWT untuk pengguna.
-Respons:
-Jika sukses, mengembalikan HTTP 200 OK dengan JWT dalam respons.
-Jika gagal, mengembalikan HTTP 400 BAD REQUEST.
+AuthenticationController adalah kelas yang menangani permintaan terkait otentikasi pengguna seperti registrasi dan login.
+@RestController menandakan bahwa kelas ini adalah RESTful controller yang menangani permintaan HTTP dan mengembalikan data sebagai respons berbasis objek langsung.
+@RequestMapping("/auth") menetapkan rute dasar URL /auth untuk controller ini. Semua permintaan HTTP yang dikirim ke /auth akan ditangani oleh metode-metode dalam kelas ini.
+Konstruktor AuthenticationController menginisialisasi controller dengan dependensi UserServices, yang digunakan untuk melakukan logika bisnis terkait pengguna.
+Metode registerUser memproses permintaan POST untuk mendaftarkan pengguna baru dengan memanggil userServices.registerUser(registrationBody). Jika pengguna sudah ada, metode ini menangkap UserAlreadyExistsException dan mengembalikan respons dengan status HTTP 409 CONFLICT.
+Metode loginUser memproses permintaan POST untuk autentikasi pengguna dengan memanggil userServices.loginUser(loginBody). Jika autentikasi berhasil, metode ini mengembalikan JWT dalam respons dengan status HTTP 200 OK. Jika gagal, metode ini mengembalikan status HTTP 400 BAD REQUEST.
+Metode getLoggedUserProfile menggunakan anotasi @GetMapping("/me") untuk mengembalikan profil pengguna yang sedang terautentikasi saat ini. Ini memanfaatkan anotasi @AuthenticationPrincipal untuk mengambil pengguna dari konteks otentikasi Spring Security.
  */
 @RestController
 @RequestMapping("/auth")
@@ -75,30 +62,33 @@ public class AuthenticationController {
         this.userServices = userServices;
     }
 
+    // Metode untuk registrasi pengguna baru
     @PostMapping("/register")
     public ResponseEntity<LoginResponse> registerUser(@Valid @RequestBody RegistrationBody registrationBody) {
         try {
-            userServices.registerUser(registrationBody);
-            return ResponseEntity.ok().build();
+            userServices.registerUser(registrationBody); // Memanggil layanan untuk mendaftarkan pengguna baru
+            return ResponseEntity.ok().build(); // Mengembalikan respons HTTP 200 OK jika sukses
         } catch (UserAlreadyExistsException ex) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            return ResponseEntity.status(HttpStatus.CONFLICT).build(); // Mengembalikan respons HTTP 409 CONFLICT jika pengguna sudah ada
         }
     }
 
+    // Metode untuk autentikasi pengguna
     @PostMapping("/login")
     public ResponseEntity loginUser(@Valid @RequestBody LoginBody loginBody) {
-        String jwt = userServices.loginUser(loginBody);
+        String jwt = userServices.loginUser(loginBody); // Memanggil layanan untuk melakukan login pengguna
         if (jwt == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); // Mengembalikan respons HTTP 400 BAD REQUEST jika login gagal
         } else {
             LoginResponse response = new LoginResponse();
-            response.setJwt(jwt);
-            return ResponseEntity.ok(response);
+            response.setJwt(jwt); // Set JWT dalam respons jika autentikasi berhasil
+            return ResponseEntity.ok(response); // Mengembalikan respons HTTP 200 OK dengan JWT
         }
     }
 
+    // Metode untuk mendapatkan profil pengguna yang sedang terautentikasi
     @GetMapping("/me")
     public LocalUser getLoggedUserProfile(@AuthenticationPrincipal LocalUser user) {
-        return user;
+        return user; // Mengembalikan profil pengguna yang terautentikasi saat ini
     }
 }

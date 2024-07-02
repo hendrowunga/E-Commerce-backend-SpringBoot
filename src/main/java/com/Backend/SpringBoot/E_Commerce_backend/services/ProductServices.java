@@ -17,3 +17,8 @@ public class ProductServices {
         return productDAO.findAll();
     }
 }
+/*
+ProductServices adalah kelas yang membantu kita mengelola semua produk di toko online.
+Di dalamnya, kita menggunakan ProductDAO (Data Access Object) untuk mengakses dan memanipulasi data produk dari database.
+Fungsinya getProducts digunakan untuk mengambil semua produk yang tersedia dari database.
+ */

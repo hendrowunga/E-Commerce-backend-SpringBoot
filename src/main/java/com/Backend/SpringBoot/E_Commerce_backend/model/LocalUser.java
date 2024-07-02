@@ -5,6 +5,16 @@ import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
+/*
+fetch = FetchType.EAGER:
+
+Deskripsi: Saat Anda memuat sebuah entitas dari database, data terkait (misalnya, relasi) akan dimuat sekaligus. Jadi, tidak perlu melakukan query tambahan untuk mendapatkan data terkait tersebut.
+Contoh: Jika Anda memuat pengguna dari database, semua alamat yang terkait dengan pengguna tersebut juga akan dimuat secara otomatis.
+@JsonIgnore:
+
+Deskripsi: Anotasi ini digunakan untuk mengabaikan properti tertentu saat objek Java diubah menjadi JSON atau sebaliknya. Properti yang diabaikan tidak akan muncul dalam output JSON.
+Contoh: Jika objek pengguna memiliki daftar alamat, dan Anda menandai daftar alamat dengan @JsonIgnore, maka daftar alamat tersebut tidak akan muncul dalam JSON ketika objek pengguna dikonversi ke JSON.
+ */
 
 @Entity
 @Table(name = "local_user")
