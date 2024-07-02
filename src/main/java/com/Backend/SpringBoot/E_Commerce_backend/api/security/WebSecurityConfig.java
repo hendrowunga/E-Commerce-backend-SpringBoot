@@ -16,7 +16,8 @@ Metode securityFilterChain: menggunakan objek HttpSecurity untuk mengonfigurasi 
     .cors(cors -> cors.disable()): Menonaktifkan konfigurasi CORS untuk mengontrol akses lintas domain.
     .authorizeHttpRequests(auth -> ...): Mengatur izin akses untuk permintaan HTTP:
     .requestMatchers("/product", "/auth/register", "/auth/login").permitAll(): Mengizinkan akses tanpa autentikasi ke endpoint /product, /auth/register, dan /auth/login.
-    .anyRequest().authenticated(): Membutuhkan autentikasi untuk semua endpoint lainnya yang tidak terdaftar sebelumnya.*/
+    .anyRequest().authenticated(): Membutuhkan autentikasi untuk semua endpoint lainnya yang tidak terdaftar sebelumnya.
+*/
 @Configuration
 public class WebSecurityConfig {
     private JWTRequestFilter jwtRequestFilter;
@@ -25,18 +26,18 @@ public class WebSecurityConfig {
         this.jwtRequestFilter = jwtRequestFilter;
     }
 
-
+    // Metode untuk mengonfigurasi keamanan HTTP
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .addFilterBefore(jwtRequestFilter, AuthorizationFilter.class)
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.disable())
+                .addFilterBefore(jwtRequestFilter, AuthorizationFilter.class) // Menambahkan JWTRequestFilter sebelum AuthorizationFilter
+                .csrf(csrf -> csrf.disable()) // Menonaktifkan proteksi CSRF
+                .cors(cors -> cors.disable()) // Menonaktifkan konfigurasi CORS
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers("/product","/auth/register","/auth/login").permitAll()
-                                .anyRequest().authenticated());
-        return http.build();
+                                .requestMatchers("/product", "/auth/register", "/auth/login").permitAll() // Mengizinkan akses tanpa autentikasi ke endpoint tertentu
+                                .anyRequest().authenticated()); // Membutuhkan autentikasi untuk semua endpoint lainnya
+
+        return http.build(); // Mengembalikan konfigurasi keamanan yang telah dikonfigurasi
     }
 }
-
