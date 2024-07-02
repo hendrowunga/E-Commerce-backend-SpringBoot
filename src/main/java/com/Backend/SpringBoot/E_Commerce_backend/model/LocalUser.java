@@ -1,5 +1,6 @@
 package com.Backend.SpringBoot.E_Commerce_backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ public class LocalUser {
 
     @Column(name = "username", nullable = false, unique = true) // ini juga nilainya tidak boleh kosong dan harus unik
     private String username;
-
+    @JsonIgnore
     @Column(name = "password", nullable = false, length = 1000)
     private String password;
 
@@ -28,7 +29,8 @@ public class LocalUser {
 
     @Column(name = "last_name", nullable = false)
     private String lastName;
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true,fetch = FetchType.EAGER)
 // Menunjukkan bahwa ada hubungan satu-ke-banyak antara LocalUser dan Address. Relasi ini dipetakan oleh properti user di kelas Address.
 // Atribut cascade = CascadeType.REMOVE memastikan bahwa penghapusan pengguna juga akan menghapus semua alamat terkait,
 // dan orphanRemoval = true memastikan bahwa alamat yang tidak lagi terkait dengan pengguna akan dihapus.
