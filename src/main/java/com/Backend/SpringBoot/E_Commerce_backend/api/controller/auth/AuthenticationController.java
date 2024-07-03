@@ -3,7 +3,9 @@ package com.Backend.SpringBoot.E_Commerce_backend.api.controller.auth;
 import com.Backend.SpringBoot.E_Commerce_backend.api.model.LoginBody;
 import com.Backend.SpringBoot.E_Commerce_backend.api.model.LoginResponse;
 import com.Backend.SpringBoot.E_Commerce_backend.api.model.RegistrationBody;
+import com.Backend.SpringBoot.E_Commerce_backend.exception.EmailFailureException;
 import com.Backend.SpringBoot.E_Commerce_backend.exception.UserAlreadyExistsException;
+import com.Backend.SpringBoot.E_Commerce_backend.exception.UserNotVerifiedException;
 import com.Backend.SpringBoot.E_Commerce_backend.model.LocalUser;
 import com.Backend.SpringBoot.E_Commerce_backend.services.UserServices;
 import jakarta.validation.Valid;
@@ -64,25 +66,51 @@ public class AuthenticationController {
 
     // Metode untuk registrasi pengguna baru
     @PostMapping("/register")
-    public ResponseEntity<LoginResponse> registerUser(@Valid @RequestBody RegistrationBody registrationBody) {
+    public ResponseEntity registerUser(@Valid @RequestBody RegistrationBody registrationBody) {
         try {
-            userServices.registerUser(registrationBody); // Memanggil layanan untuk mendaftarkan pengguna baru
-            return ResponseEntity.ok().build(); // Mengembalikan respons HTTP 200 OK jika sukses
+            userServices.registerUser(registrationBody);
+            return ResponseEntity.ok().build();
         } catch (UserAlreadyExistsException ex) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build(); // Mengembalikan respons HTTP 409 CONFLICT jika pengguna sudah ada
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        } catch (EmailFailureException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     // Metode untuk autentikasi pengguna
     @PostMapping("/login")
-    public ResponseEntity loginUser(@Valid @RequestBody LoginBody loginBody) {
-        String jwt = userServices.loginUser(loginBody); // Memanggil layanan untuk melakukan login pengguna
+    public ResponseEntity<LoginResponse> loginUser(@Valid @RequestBody LoginBody loginBody) {
+        String jwt = null;
+        try {
+            jwt = userServices.loginUser(loginBody);
+        } catch (UserNotVerifiedException ex) {
+            LoginResponse response = new LoginResponse();
+            response.setSuccess(false);
+            String reason = "USER_NOT_VERIFIED";
+            if (ex.isNewEmailSent()) {
+                reason += "_EMAIL_RESENT";
+            }
+            response.setFailureReason(reason);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        } catch (EmailFailureException ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
         if (jwt == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); // Mengembalikan respons HTTP 400 BAD REQUEST jika login gagal
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } else {
             LoginResponse response = new LoginResponse();
-            response.setJwt(jwt); // Set JWT dalam respons jika autentikasi berhasil
-            return ResponseEntity.ok(response); // Mengembalikan respons HTTP 200 OK dengan JWT
+            response.setJwt(jwt);
+            response.setSuccess(true);
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    @PostMapping("/verify")
+    public ResponseEntity verifyEmail(@RequestParam String token) {
+        if (userServices.verifyUser(token)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }
 
