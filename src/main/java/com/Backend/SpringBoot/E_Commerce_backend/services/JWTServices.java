@@ -24,43 +24,62 @@ JWT.create() memulai proses pembuatan JWT.
 .sign(algorithm) menghasilkan token JWT yang ditandatangani menggunakan algoritma yang telah disiapkan.
 JWTServices bertanggung jawab untuk mengelola pembuatan token JWT dengan menggunakan kunci dan konfigurasi yang ditentukan dalam file konfigurasi aplikasi Spring. Metode generateJWT() digunakan oleh layanan lain, seperti UserServices, untuk menghasilkan token JWT setelah pengguna berhasil login,
 sehingga token dapat digunakan untuk otentikasi pengguna pada setiap permintaan yang memerlukan otorisasi.
-*/
-@Service
+*/@Service // Menandakan bahwa kelas ini adalah service Spring, komponen yang menyediakan logika bisnis
 public class JWTServices {
 
     @Value("${jwt.algorithm.key}")
-    private String algorithmKey;
+    private String algorithmKey; // Mengambil nilai kunci algoritma dari file konfigurasi
     @Value("${jwt.issuer}")
-    private String issuer;
+    private String issuer; // Mengambil nilai issuer dari file konfigurasi
     @Value("${jwt.expiryInSeconds}")
-    private int expiryInSeconds;
-    private Algorithm algorithm;
-    private static final String USERNAME_KEY = "USERNAME";
-    private static final String EMAIL_KEY="EMAIL";
+    private int expiryInSeconds; // Mengambil nilai expiryInSeconds dari file konfigurasi
+    private Algorithm algorithm; // Menyimpan algoritma yang digunakan untuk tanda tangan JWT
+    private static final String USERNAME_KEY = "USERNAME"; // Kunci untuk menyimpan klaim username dalam JWT
+    private static final String EMAIL_KEY="EMAIL"; // Kunci untuk menyimpan klaim email dalam JWT
 
-    @PostConstruct
+    @PostConstruct // Menandakan bahwa metode ini dijalankan setelah konstruksi bean
     public void postConstruct() {
-        algorithm = Algorithm.HMAC256(algorithmKey);
+        algorithm = Algorithm.HMAC256(algorithmKey); // Menginisialisasi algoritma HMAC256 dengan kunci algoritma
     }
 
-
+    // Menghasilkan JWT untuk pengguna
     public String generateJWT(LocalUser user) {
         return JWT.create()
-                .withClaim(USERNAME_KEY, user.getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + (1000 * expiryInSeconds)))
-                .withIssuer(issuer)
-                .sign(algorithm);
+                .withClaim(USERNAME_KEY, user.getUsername()) // Menambahkan klaim username ke JWT
+                .withExpiresAt(new Date(System.currentTimeMillis() + (1000 * expiryInSeconds))) // Menetapkan waktu kedaluwarsa JWT
+                .withIssuer(issuer) // Menetapkan issuer JWT
+                .sign(algorithm); // Menandatangani JWT dengan algoritma
     }
 
+    // Menghasilkan JWT untuk verifikasi email pengguna
     public String generateVerificationJWT(LocalUser user){
         return JWT.create()
-                .withClaim(EMAIL_KEY, user.getEmail())
-                .withExpiresAt(new Date(System.currentTimeMillis() + (1000 * expiryInSeconds)))
-                .withIssuer(issuer)
-                .sign(algorithm);
-    }
-    public String getUsername(String token){
-     return JWT.decode(token).getClaim(USERNAME_KEY).asString();
+                .withClaim(EMAIL_KEY, user.getEmail()) // Menambahkan klaim email ke JWT
+                .withExpiresAt(new Date(System.currentTimeMillis() + (1000 * expiryInSeconds))) // Menetapkan waktu kedaluwarsa JWT
+                .withIssuer(issuer) // Menetapkan issuer JWT
+                .sign(algorithm); // Menandatangani JWT dengan algoritma
     }
 
+    // Mengambil username dari JWT
+    public String getUsername(String token){
+        return JWT.decode(token).getClaim(USERNAME_KEY).asString(); // Mendekode JWT dan mendapatkan klaim username sebagai string
+    }
 }
+
+/*
+Ilustrasi Sederhana
+Bayangkan Anda memiliki aplikasi toko online dan Anda ingin memastikan bahwa pengguna yang masuk adalah pengguna yang sah. Anda menggunakan JWT untuk ini.
+
+Pengguna Masuk:
+
+Ketika pengguna masuk, aplikasi Anda akan menghasilkan JWT yang berisi username pengguna dan waktu kedaluwarsa. JWT ini ditandatangani dengan kunci rahasia.
+Misalnya: token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVU0VSTkFNRSI6ImpvaG5kb2UifQ.sYSkG1yTYuMbr4OFS0vbA"
+Penggunaan JWT:
+
+Setiap kali pengguna melakukan permintaan ke server, mereka akan mengirimkan JWT ini. Server kemudian akan memverifikasi token ini dengan kunci yang sama untuk memastikan bahwa token tersebut sah.
+Jika sah, server dapat mengambil informasi username dari token tersebut.
+Verifikasi Email:
+
+Ketika pengguna mendaftar, aplikasi akan menghasilkan JWT yang berisi email pengguna untuk verifikasi. Pengguna akan menerima email dengan token ini.
+Misalnya: verificationToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJFbWFpbCI6ImpvaG5AZXhhbXBsZS5jb20ifQ.sYSkG1yTYuMbr4OFS0vbA"
+ */
