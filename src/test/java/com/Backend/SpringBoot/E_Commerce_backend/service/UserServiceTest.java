@@ -28,10 +28,7 @@ public class UserServiceTest {
     @Autowired
     private UserServices userService;
 
-    /**
-     * Tests the registration process of the user.
-     * @throws MessagingException Thrown if the mocked email service fails somehow.
-     */
+
     @Test
     @Transactional
     public void testRegisterUser() throws MessagingException {
