@@ -16,18 +16,15 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-/**
- * Test class to unit test the UserService class.
- */
+
 @SpringBootTest
 public class UserServiceTest {
 
-    /** Extension for mocking email sending. */
     @RegisterExtension
     private static GreenMailExtension greenMailExtension = new GreenMailExtension(ServerSetupTest.SMTP)
             .withConfiguration(GreenMailConfiguration.aConfig().withUser("Endos", "secret"))
             .withPerMethodLifecycle(true);
-    /** The UserService to test. */
+
     @Autowired
     private UserServices userService;
 
