@@ -72,6 +72,4 @@ public class RegistrationBody {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
-
-
 }
