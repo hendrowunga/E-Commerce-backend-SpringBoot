@@ -11,23 +11,37 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/order")
+@RequestMapping("/order") // Menandai kelas ini sebagai kontroler REST yang menangani permintaan HTTP di jalur "/order".
 
 public class OrderController {
     private OrderServices orderServices;
 
-    public OrderController(OrderServices orderServices) {
+    public OrderController(OrderServices orderServices) { // Konstruktor untuk menginisialisasi layanan order (OrderServices).
         this.orderServices = orderServices;
     }
+
+
+    // Menangani permintaan HTTP GET ke "/order".
     @GetMapping
+    // Metode untuk mendapatkan daftar pesanan (orders) untuk pengguna yang terautentikasi.
     public List<WebOrder> getOrders(@AuthenticationPrincipal LocalUser user){
-        return orderServices.getOrders(user);
+        return orderServices.getOrders(user); // Mengembalikan daftar pesanan yang diperoleh dari layanan order (OrderServices).
+
     }
 }
+
 /*
-OrderController adalah kelas yang menangani permintaan terkait pesanan dari aplikasi klien.
-Di dalamnya, terdapat metode getOrders yang digunakan untuk mendapatkan daftar pesanan dari pengguna yang sedang login.
-@GetMapping menandakan bahwa metode ini menanggapi permintaan HTTP GET ke endpoint /order, yang berarti aplikasi klien dapat meminta daftar pesanan melalui URL tersebut.
-@AuthenticationPrincipal LocalUser user digunakan untuk mendapatkan informasi pengguna yang sedang login, sehingga kita dapat mengetahui pesanan dari pengguna tersebut.
-Kita menggunakan OrderServices untuk memproses permintaan dan mengambil daftar pesanan dari pengguna yang sedang login.
+Ilustrasi
+Bayangkan Anda memiliki aplikasi e-commerce di mana pengguna dapat melihat pesanan mereka. Kelas OrderController ini bertugas menangani permintaan untuk melihat pesanan pengguna.
+
+Ilustrasi Sederhana
+Pengguna: John Doe terautentikasi dan mengakses aplikasi melalui browser atau aplikasi mobile.
+
+Permintaan GET: John mengunjungi halaman "Pesanan Saya" di aplikasi, yang mengirim permintaan HTTP GET ke endpoint "/order".
+
+Pengambilan Pengguna Terautentikasi: Spring Security mengenali bahwa John sudah login dan menyuntikkan objek LocalUser yang mewakili John ke dalam metode getOrders.
+
+Memanggil Layanan Pesanan: Metode getOrders dalam OrderController memanggil orderServices.getOrders(user), di mana user adalah John Doe.
+
+Mengembalikan Daftar Pesanan: orderServices.getOrders(user) mengembalikan daftar pesanan milik John Doe, yang kemudian dikirim kembali sebagai respons HTTP dalam bentuk JSON.
  */

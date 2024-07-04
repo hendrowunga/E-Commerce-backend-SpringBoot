@@ -4,12 +4,14 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public class LoginBody {
-    @NotNull
-    @NotBlank
+    @NotNull // Field ini tidak boleh null
+    @NotBlank // Field ini tidak boleh kosong atau berisikan spasi
     private String username;
     @NotNull
     @NotBlank
     private String password;
+
+    // Metode Getter and setter
     public String getUsername() {
         return username;
     }

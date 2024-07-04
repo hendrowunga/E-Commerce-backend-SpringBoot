@@ -10,22 +10,29 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/product")
+// Menandai kelas ini sebagai kontroler REST yang menangani permintaan HTTP di jalur "/product".
+
 public class ProductController {
     private ProductServices productServices;
 
     public ProductController(ProductServices productServices) {
         this.productServices = productServices;
     }
+    // Konstruktor untuk menginisialisasi layanan produk (ProductServices).
 
-    @GetMapping
+    @GetMapping // Menangani permintaan HTTP GET ke "/product".
     public List<Product> getProducts() {
-        return productServices.getProducts();
+        return productServices.getProducts();  // Mengembalikan daftar produk yang diperoleh dari layanan produk (ProductServices).
     }
 }
+
 /*
-ProductController adalah kelas yang menangani permintaan terkait produk dari aplikasi klien.
-Di dalamnya, terdapat metode getProducts yang digunakan untuk mendapatkan daftar semua produk yang tersedia.
-@GetMapping menandakan bahwa metode ini menanggapi permintaan HTTP GET ke endpoint /product, yang berarti aplikasi klien dapat meminta daftar produk melalui URL tersebut.
-Kita menggunakan ProductServices untuk memproses permintaan dan mengambil daftar produk dari database atau sumber data lainnya.
-Kontroler ini memungkinkan aplikasi klien untuk mengambil informasi produk yang tersedia dari backend, seperti nama produk, harga, dan deskripsi.
+Ilustrasi Sederhana
+Pengguna: Jane Doe mengakses aplikasi e-commerce melalui browser atau aplikasi mobile.
+
+Permintaan GET: Jane mengunjungi halaman "Produk" di aplikasi, yang mengirim permintaan HTTP GET ke endpoint "/product".
+
+Memanggil Layanan Produk: Metode getProducts dalam ProductController memanggil productServices.getProducts() untuk mendapatkan daftar semua produk yang tersedia.
+
+Mengembalikan Daftar Produk: productServices.getProducts() mengembalikan daftar produk yang kemudian dikirim kembali sebagai respons HTTP dalam bentuk JSON.
  */

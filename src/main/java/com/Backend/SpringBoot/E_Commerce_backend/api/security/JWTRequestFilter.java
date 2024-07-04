@@ -24,37 +24,38 @@ apakah permintaan tersebut memiliki token JWT yang valid. Filter ini mengextends
 sekali per permintaan.
  */
 
-@Component
+@Component // Menandakan bahawa kelas ini merupakan komponen Spring yang dikelola oleh container Spring
 public class JWTRequestFilter extends OncePerRequestFilter {
 
-    private JWTServices jwtServices;
-    private LocalUserDAO localUserDAO;
+    private JWTServices jwtServices; // Mendeklarasikan dependensi JWTServices untuk Service JWT
+    private LocalUserDAO localUserDAO; // Mendeklarsikan dependensi LocalUserDAO untuk akses data pengguna
 
-    public JWTRequestFilter(JWTServices jwtServices, LocalUserDAO localUserDAO) {
+    public JWTRequestFilter(JWTServices jwtServices, LocalUserDAO localUserDAO) { // Konstraktor untuk menginisialisasi dependensi JWTServices dan LocalUserDAO
         this.jwtServices = jwtServices;
         this.localUserDAO = localUserDAO;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String tokenHeader = request.getHeader("Authorization");
-        if (tokenHeader != null && tokenHeader.startsWith("Bearer")) {
-            String token = tokenHeader.substring(7);
+        String tokenHeader = request.getHeader("Authorization"); // Mengambil header "Authorization" dari request
+        if (tokenHeader != null && tokenHeader.startsWith("Bearer")) { // Memeriksa apakah header berisi token "Bearer"
+            String token = tokenHeader.substring(7); // Mengambil token dengan menghapus prefix "Bearer"
             try {
-                String username = jwtServices.getUsername(token);
-                Optional<LocalUser> opUser = localUserDAO.findByUsernameIgnoreCase(username);
-                if (opUser.isPresent()) {
-                    LocalUser user = opUser.get();
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, new ArrayList());
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                String username = jwtServices.getUsername(token); // Mendapatkan username dari token menggunakan jwtServices
+                Optional<LocalUser> opUser = localUserDAO.findByUsernameIgnoreCase(username); // Mencari pengguna berdasarkan username
+                if (opUser.isPresent()) { // Jika pengguna ditemukan
+                    LocalUser user = opUser.get(); // Mengambil objek pengguna
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, new ArrayList()); // Membuat objek otentikasi menggunakan pengguna yang ditemukan
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request)); // Menambahkan detail request ke outentikasi
+                    SecurityContextHolder.getContext().setAuthentication(authentication); // Menetapkan outentikasi ke konteks keamanan
                 }
             } catch (JWTDecodeException ex) {
+                // Menangani kesalahan decoding token,misalnya log kesalahan atau kirim respon kesalahan
 
             }
 
         }
-        filterChain.doFilter(request, response);
+        filterChain.doFilter(request, response); // Meneruskan request dan respon ke filter berikutnya dalam rantai filter
 
     }
 
