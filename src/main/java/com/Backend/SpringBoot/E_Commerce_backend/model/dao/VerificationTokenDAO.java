@@ -12,5 +12,8 @@ public interface VerificationTokenDAO extends ListCrudRepository<VerificationTok
     Optional<VerificationToken> findByToken(String token);
 
     void deleteByUser(LocalUser user);
-    List<VerificationToken> findByUser_IdOrderByDesc(Long id);
+
+    List<VerificationToken> findByUser_IdOrderByIdDesc(Long id);
+
+
 }
