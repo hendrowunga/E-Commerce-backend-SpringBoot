@@ -1,6 +1,9 @@
 package com.Backend.SpringBoot.E_Commerce_backend.service;
 
 
+import com.Backend.SpringBoot.E_Commerce_backend.api.model.LoginBody;
+import com.Backend.SpringBoot.E_Commerce_backend.exception.EmailFailureException;
+import com.Backend.SpringBoot.E_Commerce_backend.exception.UserNotVerifiedException;
 import com.Backend.SpringBoot.E_Commerce_backend.services.UserServices;
 import com.icegreen.greenmail.configuration.GreenMailConfiguration;
 import com.icegreen.greenmail.junit5.GreenMailExtension;
@@ -49,6 +52,21 @@ public class UserServiceTest {
                 "User should register successfully.");
         Assertions.assertEquals(body.getEmail(), greenMailExtension.getReceivedMessages()[0]
                 .getRecipients(Message.RecipientType.TO)[0].toString());
+    }
+    @Test
+    @Transactional
+    public void testLoginUser() throws UserNotVerifiedException, EmailFailureException {
+        LoginBody body=new LoginBody();
+
+        body.setUsername("UserA-NoExists");
+        body.setPassword("PasswordA123-BadPassword");
+        Assertions.assertNull(userService.loginUser(body),"The user should not exits");
+        body.setUsername("UserA");
+        Assertions.assertNull(userService.loginUser(body),"The password should be incorrect");
+        body.setPassword("PasswordA123");
+        Assertions.assertNotNull(userService.loginUser(body),"The user should login successfully");
+        body.setUsername("UserB");
+
     }
 
 }
