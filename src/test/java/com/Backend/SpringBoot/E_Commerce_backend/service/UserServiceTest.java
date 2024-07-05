@@ -66,7 +66,24 @@ public class UserServiceTest {
         body.setPassword("PasswordA123");
         Assertions.assertNotNull(userService.loginUser(body),"The user should login successfully");
         body.setUsername("UserB");
+        body.setPassword("PasswordB123");
+        try{
+            userService.loginUser(body);
+            Assertions.assertTrue(false,"User should not have email verified");
 
+        }catch(UserNotVerifiedException ex){
+            Assertions.assertTrue(ex.isNewEmailSent(),"Email verification should be sent");
+            Assertions.assertEquals(1,greenMailExtension.getReceivedMessages().length);
+        }
+
+        try{
+            userService.loginUser(body);
+            Assertions.assertTrue(false,"User should not have email verified");
+
+        }catch(UserNotVerifiedException ex){
+            Assertions.assertFalse(ex.isNewEmailSent(),"Email verification should not be resent");
+            Assertions.assertEquals(1,greenMailExtension.getReceivedMessages().length);
+        }
     }
 
 }
