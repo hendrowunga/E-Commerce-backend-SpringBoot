@@ -35,7 +35,7 @@ public class WebSecurityConfig {
                 .cors(cors -> cors.disable()) // Menonaktifkan konfigurasi CORS
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers("/product", "/auth/register", "/auth/login","/auth/verify").permitAll() // Mengizinkan akses tanpa autentikasi ke endpoint tertentu
+                                .requestMatchers("/product", "/auth/register", "/auth/login","/auth/verify","/error").permitAll() // Mengizinkan akses tanpa autentikasi ke endpoint tertentu
                                 .anyRequest().authenticated()); // Membutuhkan autentikasi untuk semua endpoint lainnya
 
         return http.build(); // Mengembalikan konfigurasi keamanan yang telah dikonfigurasi
