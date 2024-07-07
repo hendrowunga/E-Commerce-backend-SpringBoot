@@ -1,8 +1,10 @@
 package com.Backend.SpringBoot.E_Commerce_backend.services;
 
 import com.Backend.SpringBoot.E_Commerce_backend.api.model.LoginBody;
+import com.Backend.SpringBoot.E_Commerce_backend.api.model.PasswordResetBody;
 import com.Backend.SpringBoot.E_Commerce_backend.api.model.RegistrationBody;
 import com.Backend.SpringBoot.E_Commerce_backend.exception.EmailFailureException;
+import com.Backend.SpringBoot.E_Commerce_backend.exception.EmailNotFoundException;
 import com.Backend.SpringBoot.E_Commerce_backend.exception.UserAlreadyExistsException;
 import com.Backend.SpringBoot.E_Commerce_backend.exception.UserNotVerifiedException;
 import com.Backend.SpringBoot.E_Commerce_backend.model.LocalUser;
@@ -123,6 +125,26 @@ public class UserServices {
         }
         return false; // Jika token tidak ditemukan atau email sudah diverifikasi, mengembalikan nilai false
     }
+
+    public void forgotPassword(String email) throws EmailNotFoundException, EmailFailureException {
+        Optional<LocalUser> opUser = localUserDAO.findByEmailIgnoreCase(email);
+        if (opUser.isPresent()) {
+            LocalUser user = opUser.get();
+            String token = jwtServices.generatePasswordResetJWT(user);
+            emailServices.sendPasswordResetEmail(user, token);
+        } else {
+            throw new EmailNotFoundException();
+        }
+    }
+    public void resetPassword(PasswordResetBody body){
+        String email=jwtServices.getResetPasswordEmail(body.getToken());
+        Optional<LocalUser> opUser=localUserDAO.findByEmailIgnoreCase(email);
+        if(opUser.isPresent()){
+            LocalUser user=opUser.get();
+            user.setPassword(encryptionServices.encryptPassword(body.getPassword()));
+        }
+    }
+
 }
 /*
 Ilustrasi

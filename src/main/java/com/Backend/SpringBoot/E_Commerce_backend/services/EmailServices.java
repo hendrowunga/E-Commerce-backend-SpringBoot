@@ -1,6 +1,7 @@
 package com.Backend.SpringBoot.E_Commerce_backend.services;
 
 import com.Backend.SpringBoot.E_Commerce_backend.exception.EmailFailureException; // Mengimpor exception khusus untuk penanganan kesalahan email
+import com.Backend.SpringBoot.E_Commerce_backend.model.LocalUser;
 import com.Backend.SpringBoot.E_Commerce_backend.model.VerificationToken; // Mengimpor model VerificationToken
 import org.springframework.beans.factory.annotation.Value; // Mengimpor anotasi untuk membaca nilai dari properti aplikasi
 import org.springframework.mail.MailException; // Mengimpor exception untuk kesalahan pengiriman email
@@ -39,6 +40,19 @@ public class EmailServices {
             javaMailSender.send(message); // Mengirim email
         } catch (MailException ex) {
             throw new EmailFailureException(); // Melempar exception jika pengiriman email gagal
+        }
+    }
+    public void sendPasswordResetEmail(LocalUser user, String token) throws EmailFailureException {
+        SimpleMailMessage message = makeMailMessage();
+        message.setTo(user.getEmail());
+        message.setSubject("Your password reset request link.");
+        message.setText("You requested a password reset on our website. Please " +
+                "find the link below to be able to reset your password.\n" + url +
+                "/auth/reset?token=" + token);
+        try {
+            javaMailSender.send(message);
+        } catch (MailException ex) {
+            throw new EmailFailureException();
         }
     }
 }

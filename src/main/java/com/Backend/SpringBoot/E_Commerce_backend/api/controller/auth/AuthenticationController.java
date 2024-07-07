@@ -2,8 +2,10 @@ package com.Backend.SpringBoot.E_Commerce_backend.api.controller.auth;
 
 import com.Backend.SpringBoot.E_Commerce_backend.api.model.LoginBody;
 import com.Backend.SpringBoot.E_Commerce_backend.api.model.LoginResponse;
+import com.Backend.SpringBoot.E_Commerce_backend.api.model.PasswordResetBody;
 import com.Backend.SpringBoot.E_Commerce_backend.api.model.RegistrationBody;
 import com.Backend.SpringBoot.E_Commerce_backend.exception.EmailFailureException;
+import com.Backend.SpringBoot.E_Commerce_backend.exception.EmailNotFoundException;
 import com.Backend.SpringBoot.E_Commerce_backend.exception.UserAlreadyExistsException;
 import com.Backend.SpringBoot.E_Commerce_backend.exception.UserNotVerifiedException;
 import com.Backend.SpringBoot.E_Commerce_backend.model.LocalUser;
@@ -82,6 +84,24 @@ public class AuthenticationController {
     public LocalUser getLoggedUserProfile(@AuthenticationPrincipal LocalUser user) { // Mengambil pengguna yang sedang terautentikasi
         return user; // Mengembalikan profil pengguna yang terautentikasi saat ini
     }
+
+    @PostMapping("/forgot")
+    public ResponseEntity forgotPassword(@RequestParam String email) {
+        try {
+            userServices.forgotPassword(email);
+            return ResponseEntity.ok().build();
+        } catch (EmailNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (EmailFailureException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    @PostMapping("/reset")
+    public ResponseEntity resetPassword(@Valid @RequestBody PasswordResetBody body) {
+        userServices.resetPassword(body);
+        return ResponseEntity.ok().build();
+    }
+
 }
 /*
 Ilustrasi
