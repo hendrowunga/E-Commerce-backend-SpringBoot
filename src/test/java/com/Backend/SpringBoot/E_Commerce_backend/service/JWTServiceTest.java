@@ -6,9 +6,11 @@ import com.Backend.SpringBoot.E_Commerce_backend.services.JWTServices;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest // Menandakan bahwa ini adalah kelas pengujian untuk aplikasi Spring Boot
+@AutoConfigureMockMvc
 public class JWTServiceTest {
     @Autowired // Menyuntikkan layanan JWT ke dalam kelas ini
     private JWTServices jwtServices;
