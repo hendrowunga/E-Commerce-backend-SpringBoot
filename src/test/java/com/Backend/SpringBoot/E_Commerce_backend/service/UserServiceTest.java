@@ -2,10 +2,16 @@ package com.Backend.SpringBoot.E_Commerce_backend.service;
 
 
 import com.Backend.SpringBoot.E_Commerce_backend.api.model.LoginBody;
+import com.Backend.SpringBoot.E_Commerce_backend.api.model.PasswordResetBody;
 import com.Backend.SpringBoot.E_Commerce_backend.exception.EmailFailureException;
+import com.Backend.SpringBoot.E_Commerce_backend.exception.EmailNotFoundException;
 import com.Backend.SpringBoot.E_Commerce_backend.exception.UserNotVerifiedException;
+import com.Backend.SpringBoot.E_Commerce_backend.model.LocalUser;
 import com.Backend.SpringBoot.E_Commerce_backend.model.VerificationToken;
+import com.Backend.SpringBoot.E_Commerce_backend.model.dao.LocalUserDAO;
 import com.Backend.SpringBoot.E_Commerce_backend.model.dao.VerificationTokenDAO;
+import com.Backend.SpringBoot.E_Commerce_backend.services.EncryptionServices;
+import com.Backend.SpringBoot.E_Commerce_backend.services.JWTServices;
 import com.Backend.SpringBoot.E_Commerce_backend.services.UserServices;
 import com.icegreen.greenmail.configuration.GreenMailConfiguration;
 import com.icegreen.greenmail.junit5.GreenMailExtension;
@@ -39,6 +45,12 @@ public class UserServiceTest {
     @Autowired
     private VerificationTokenDAO verificationTokenDAO; // Menggunakan DAO token verifikasi untuk pengujian
 
+    @Autowired
+    private JWTServices jwtService;
+    @Autowired
+    private LocalUserDAO localUserDAO;
+    @Autowired
+    private EncryptionServices encryptionService;
 
     @Test
     @Transactional
@@ -112,6 +124,29 @@ public class UserServiceTest {
             Assertions.assertTrue(userService.verifyUser(token), "Token should be valid.");
             Assertions.assertNotNull(body, "The user should now be verified.");
         }
+    }
+    @Test
+    @Transactional
+    public void testForgotPassword() throws MessagingException {
+        Assertions.assertThrows(EmailNotFoundException.class,
+                () -> userService.forgotPassword("UserNotExist@junit.com"));
+        Assertions.assertDoesNotThrow(() -> userService.forgotPassword(
+                "UserA@junit.com"), "Non existing email should be rejected.");
+        Assertions.assertEquals("UserA@junit.com",
+                greenMailExtension.getReceivedMessages()[0]
+                        .getRecipients(Message.RecipientType.TO)[0].toString(), "Password " +
+                        "reset email should be sent.");
+    }
+    public void testResetPassword() {
+        LocalUser user = localUserDAO.findByUsernameIgnoreCase("UserA").get();
+        String token = jwtService.generatePasswordResetJWT(user);
+        PasswordResetBody body = new PasswordResetBody();
+        body.setToken(token);
+        body.setPassword("Password123456");
+        userService.resetPassword(body);
+        user = localUserDAO.findByUsernameIgnoreCase("UserA").get();
+        Assertions.assertTrue(encryptionService.verifyPassword("Password123456",
+                user.getPassword()), "Password change should be written to DB.");
     }
 
 }

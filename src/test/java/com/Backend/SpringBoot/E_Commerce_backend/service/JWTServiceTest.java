@@ -41,19 +41,44 @@ public class JWTServiceTest {
         Assertions.assertEquals(user.getUsername(),jwtServices.getUsername(token),"Token for auth should contain user's username."); // Memastikan bahwa token autentikasi mengandung username pengguna
     }
     @Test
-    public void testJWTNotGeneratedByUs() {
+    public void testLoginJWTNotGeneratedByUs() {
         String token = JWT.create().withClaim("USERNAME", "UserA").sign(Algorithm.HMAC256("NotTheRealSecret"));
         Assertions.assertThrows(SignatureVerificationException.class,
                 () -> jwtServices.getUsername(token));
     }
 
     @Test
-    public void testJWTCorrectlySignedNoIssuer() {
+    public void testLoginJWTCorrectlySignedNoIssuer() {
         String token =
                 JWT.create().withClaim("USERNAME", "UserA")
                         .sign(Algorithm.HMAC256(algorithmKey));
         Assertions.assertThrows(MissingClaimException.class,
                 () -> jwtServices.getUsername(token));
+    }
+    @Test
+    public void testResetPasswordJWTNotGeneratedByUs() {
+        String token =
+                JWT.create().withClaim("RESET_PASSWORD_EMAIL", "UserA@junit.com").sign(Algorithm.HMAC256(
+                        "NotTheRealSecret"));
+        Assertions.assertThrows(SignatureVerificationException.class,
+                () -> jwtServices.getResetPasswordEmail(token));
+    }
+    @Test
+    public void testResetPasswordJWTCorrectlySignedNoIssuer() {
+        String token =
+                JWT.create().withClaim("RESET_PASSWORD_EMAIL", "UserA@junit.com")
+                        .sign(Algorithm.HMAC256(algorithmKey));
+        Assertions.assertThrows(MissingClaimException.class,
+                () -> jwtServices.getResetPasswordEmail(token));
+    }
+
+    @Test
+    public void testPasswordResetToken() {
+        LocalUser user = localUserDAO.findByUsernameIgnoreCase("UserA").get();
+        String token = jwtServices.generatePasswordResetJWT(user);
+        Assertions.assertEquals(user.getEmail(),
+                jwtServices.getResetPasswordEmail(token), "Email should match inside " +
+                        "JWT.");
     }
 }
 
