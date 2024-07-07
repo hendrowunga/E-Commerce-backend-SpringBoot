@@ -45,9 +45,11 @@ public class JWTRequestFilter extends OncePerRequestFilter {
                 Optional<LocalUser> opUser = localUserDAO.findByUsernameIgnoreCase(username); // Mencari pengguna berdasarkan username
                 if (opUser.isPresent()) { // Jika pengguna ditemukan
                     LocalUser user = opUser.get(); // Mengambil objek pengguna
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, new ArrayList()); // Membuat objek otentikasi menggunakan pengguna yang ditemukan
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request)); // Menambahkan detail request ke outentikasi
-                    SecurityContextHolder.getContext().setAuthentication(authentication); // Menetapkan outentikasi ke konteks keamanan
+                    if (user.isEmailVerified()) {
+                        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, new ArrayList()); // Membuat objek otentikasi menggunakan pengguna yang ditemukan
+                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request)); // Menambahkan detail request ke outentikasi
+                        SecurityContextHolder.getContext().setAuthentication(authentication); // Menetapkan outentikasi ke konteks keamanan
+                    }
                 }
             } catch (JWTDecodeException ex) {
                 // Menangani kesalahan decoding token,misalnya log kesalahan atau kirim respon kesalahan

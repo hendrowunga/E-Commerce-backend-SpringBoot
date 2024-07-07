@@ -2,8 +2,11 @@ package com.Backend.SpringBoot.E_Commerce_backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /*
@@ -18,7 +21,7 @@ Contoh: Jika objek pengguna memiliki daftar alamat, dan Anda menandai daftar ala
 
 @Entity
 @Table(name = "local_user")
-public class LocalUser {
+public class LocalUser implements UserDetails {
     @Id // ini menentukan kunci utama dari entitas ini
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     // ini menentukan nilai kunci utama dihasilkan secara otomatis/auto-Increment
@@ -41,10 +44,12 @@ public class LocalUser {
     @Column(name = "last_name", nullable = false) // nama belakang tidak boleh kosong
     private String lastName;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
     // relasi satu-ke-banyak dengan Address, jika pengguna dihapus, semua alamat terkait juga dihapus, data alamat dimuat sekaligus
     private List<Address> addresses = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     // relasi satu-ke-banyak dengan VerificationToken, semua operasi pada pengguna akan mempengaruhi token terkait, token akan dihapus jika pengguna dihapus
     @OrderBy("id desc")
@@ -102,6 +107,11 @@ public class LocalUser {
         this.email = email;
     }
 
+    @JsonIgnore
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
     public String getPassword() {
         return password;
     }
@@ -112,6 +122,26 @@ public class LocalUser {
 
     public String getUsername() {
         return username;
+    }
+
+    @JsonIgnore
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @JsonIgnore
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @JsonIgnore
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @JsonIgnore
+    public boolean isEnabled() {
+        return true;
     }
 
     public void setUsername(String username) {
