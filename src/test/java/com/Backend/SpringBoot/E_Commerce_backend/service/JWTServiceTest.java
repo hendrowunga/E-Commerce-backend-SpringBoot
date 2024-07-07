@@ -3,20 +3,29 @@ package com.Backend.SpringBoot.E_Commerce_backend.service;
 import com.Backend.SpringBoot.E_Commerce_backend.model.LocalUser;
 import com.Backend.SpringBoot.E_Commerce_backend.model.dao.LocalUserDAO;
 import com.Backend.SpringBoot.E_Commerce_backend.services.JWTServices;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.MissingClaimException;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest // Menandakan bahwa ini adalah kelas pengujian untuk aplikasi Spring Boot
 @AutoConfigureMockMvc
 public class JWTServiceTest {
+
     @Autowired // Menyuntikkan layanan JWT ke dalam kelas ini
     private JWTServices jwtServices;
 
     @Autowired // Menyuntikkan DAO pengguna lokal ke dalam kelas ini
     private LocalUserDAO localUserDAO;
+
+    @Value("${jwt.algorithm.key}")
+    private String algorithmKey;
 
     @Test // Menandakan bahwa metode ini adalah metode pengujian
     public void testVerificationTokenNotUsableForLogin(){
@@ -30,6 +39,21 @@ public class JWTServiceTest {
         LocalUser user=localUserDAO.findByUsernameIgnoreCase("UserA").get(); // Mencari pengguna dengan username "UserA"
         String token=jwtServices.generateJWT(user); // Menghasilkan token autentikasi untuk pengguna ini
         Assertions.assertEquals(user.getUsername(),jwtServices.getUsername(token),"Token for auth should contain user's username."); // Memastikan bahwa token autentikasi mengandung username pengguna
+    }
+    @Test
+    public void testJWTNotGeneratedByUs() {
+        String token = JWT.create().withClaim("USERNAME", "UserA").sign(Algorithm.HMAC256("NotTheRealSecret"));
+        Assertions.assertThrows(SignatureVerificationException.class,
+                () -> jwtServices.getUsername(token));
+    }
+
+    @Test
+    public void testJWTCorrectlySignedNoIssuer() {
+        String token =
+                JWT.create().withClaim("USERNAME", "UserA")
+                        .sign(Algorithm.HMAC256(algorithmKey));
+        Assertions.assertThrows(MissingClaimException.class,
+                () -> jwtServices.getUsername(token));
     }
 }
 
