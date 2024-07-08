@@ -8,6 +8,9 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -16,6 +19,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /*
@@ -25,7 +30,7 @@ sekali per permintaan.
  */
 
 @Component // Menandakan bahawa kelas ini merupakan komponen Spring yang dikelola oleh container Spring
-public class JWTRequestFilter extends OncePerRequestFilter {
+public class JWTRequestFilter extends OncePerRequestFilter implements ChannelInterceptor {
 
     private JWTServices jwtServices; // Mendeklarasikan dependensi JWTServices untuk Service JWT
     private LocalUserDAO localUserDAO; // Mendeklarsikan dependensi LocalUserDAO untuk akses data pengguna
@@ -38,8 +43,16 @@ public class JWTRequestFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String tokenHeader = request.getHeader("Authorization"); // Mengambil header "Authorization" dari request
-        if (tokenHeader != null && tokenHeader.startsWith("Bearer")) { // Memeriksa apakah header berisi token "Bearer"
-            String token = tokenHeader.substring(7); // Mengambil token dengan menghapus prefix "Bearer"
+        UsernamePasswordAuthenticationToken tokens=checkToken(tokenHeader);
+        if (tokens!= null){
+            tokens.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        }
+        filterChain.doFilter(request, response); // Meneruskan request dan respon ke filter berikutnya dalam rantai filter
+
+    }
+    private UsernamePasswordAuthenticationToken checkToken (String token){
+        if (token != null && token.startsWith("Bearer")) { // Memeriksa apakah header berisi token "Bearer"
+            token = token.substring(7); // Mengambil token dengan menghapus prefix "Bearer"
             try {
                 String username = jwtServices.getUsername(token); // Mendapatkan username dari token menggunakan jwtServices
                 Optional<LocalUser> opUser = localUserDAO.findByUsernameIgnoreCase(username); // Mencari pengguna berdasarkan username
@@ -47,20 +60,31 @@ public class JWTRequestFilter extends OncePerRequestFilter {
                     LocalUser user = opUser.get(); // Mengambil objek pengguna
                     if (user.isEmailVerified()) {
                         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, new ArrayList()); // Membuat objek otentikasi menggunakan pengguna yang ditemukan
-                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request)); // Menambahkan detail request ke outentikasi
                         SecurityContextHolder.getContext().setAuthentication(authentication); // Menetapkan outentikasi ke konteks keamanan
+                        return authentication;
                     }
                 }
-            } catch (JWTDecodeException ex) {
-                // Menangani kesalahan decoding token,misalnya log kesalahan atau kirim respon kesalahan
-
+            } catch (JWTDecodeException ex) {  // Menangani kesalahan decoding token,misalnya log kesalahan atau kirim respon kesalahan
             }
 
         }
-        filterChain.doFilter(request, response); // Meneruskan request dan respon ke filter berikutnya dalam rantai filter
-
+        SecurityContextHolder.getContext().setAuthentication(null);
+        return  null;
     }
 
+    @Override
+    public Message<?> preSend(Message<?> message, MessageChannel channel) {
+       Map nativeHeaders=(Map) message.getHeaders().get("nativeHeaders");
+        //TODO:Limit this to only CONNECT messages.
+        if(nativeHeaders!=null){
+            List authTokenList=(List) nativeHeaders.get("Authorization");
+            if(authTokenList!=null){
+                String tokensHeader=(String) authTokenList.get(0);
+                checkToken(tokensHeader);
+            }
+        }
+        return message;
+    }
 }
 
 /*

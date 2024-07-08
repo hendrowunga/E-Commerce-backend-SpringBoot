@@ -31,13 +31,14 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .addFilterBefore(jwtRequestFilter, AuthorizationFilter.class) // Menambahkan JWTRequestFilter sebelum AuthorizationFilter
                 .csrf(csrf -> csrf.disable()) // Menonaktifkan proteksi CSRF
                 .cors(cors -> cors.disable()) // Menonaktifkan konfigurasi CORS
-                .authorizeHttpRequests(auth ->
-                        auth
-                                .requestMatchers("/product", "/auth/register", "/auth/login","/auth/verify","/auth/forgot","/auth/reset","/error").permitAll() // Mengizinkan akses tanpa autentikasi ke endpoint tertentu
-                                .anyRequest().authenticated()); // Membutuhkan autentikasi untuk semua endpoint lainnya
+                .authorizeRequests(authorizeRequests ->
+                        authorizeRequests
+                                .requestMatchers("/product", "/auth/register", "/auth/login", "/auth/verify", "/auth/forgot", "/auth/reset", "/error").permitAll() // Mengizinkan akses tanpa autentikasi ke endpoint tertentu
+                                .anyRequest().authenticated() // Membutuhkan autentikasi untuk semua endpoint lainnya
+                )
+                .addFilterBefore(jwtRequestFilter, AuthorizationFilter.class);// Menambahkan JWTRequestFilter sebelum AuthorizationFilter
 
         return http.build(); // Mengembalikan konfigurasi keamanan yang telah dikonfigurasi
     }
