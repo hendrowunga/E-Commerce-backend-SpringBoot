@@ -35,7 +35,7 @@ public class WebSecurityConfig {
                 .cors(cors -> cors.disable()) // Menonaktifkan konfigurasi CORS
                 .authorizeRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/product", "/auth/register", "/auth/login", "/auth/verify", "/auth/forgot", "/auth/reset", "/error").permitAll() // Mengizinkan akses tanpa autentikasi ke endpoint tertentu
+                                .requestMatchers("/product", "/auth/register", "/auth/login", "/auth/verify", "/auth/forgot", "/auth/reset", "/error","/websocket","/websocket/**").permitAll() // Mengizinkan akses tanpa autentikasi ke endpoint tertentu
                                 .anyRequest().authenticated() // Membutuhkan autentikasi untuk semua endpoint lainnya
                 )
                 .addFilterBefore(jwtRequestFilter, AuthorizationFilter.class);// Menambahkan JWTRequestFilter sebelum AuthorizationFilter
