@@ -3,9 +3,11 @@
 -- You first need to register two users into the system before running this scirpt.
 
 -- Replace the id here with the first user id you want to have ownership of the orders.
-DECLARE @userId1 AS INT = 8;
+DECLARE @userId1 AS INT = 10002;
 -- Replace the id here with the second user id you want to have ownership of the orders.
-DECLARE @userId2 AS INT = 9;
+DECLARE @userId2 AS INT = 10003;
+DECLARE @userId3 AS INT = 10004;
+DECLARE @userId4 AS INT = 10008;
 
 DELETE FROM web_order_quantities;
 DELETE FROM web_order;
@@ -35,11 +37,15 @@ INSERT INTO inventory (product_id, quantity) VALUES (@product5, 2);
 
 INSERT INTO address (address_line_1, city, country, user_id) VALUES ('123 Tester Hill', 'Testerton', 'England', @userId1);
 INSERT INTO address (address_line_1, city, country, user_id) VALUES ('312 Spring Boot', 'Hibernate', 'England', @userId2);
+INSERT INTO address (address_line_1, city, country, user_id) VALUES ('jln. Welas', 'Flores', 'Indonesia', @userId3);
+INSERT INTO address (address_line_1, city, country, user_id) VALUES ('312 Java', 'Yogyakarta', 'Afrika', @userId4);
 
-DECLARE @address1 INT, @address2 INT;
+DECLARE @address1 INT, @address2 INT,@address3 INT,@address4 INT;
 
 SELECT TOP 1 @address1 = id FROM address WHERE user_id = @userId1 ORDER BY id DESC;
 SELECT TOP 1 @address2 = id FROM address WHERE user_id = @userId2 ORDER BY id DESC;
+SELECT TOP 1 @address3 = id FROM address WHERE user_id = @userId3 ORDER BY id DESC;
+SELECT TOP 1 @address4 = id FROM address WHERE user_id = @userId4 ORDER BY id DESC;
 
 INSERT INTO web_order (address_id, user_id) VALUES (@address1, @userId1);
 INSERT INTO web_order (address_id, user_id) VALUES (@address1, @userId1);

@@ -8,8 +8,8 @@ INSERT INTO local_user (email, first_name, last_name, password, username, email_
     , ('UserC@junit.com', 'UserC-FirstName', 'UserC-LastName', '$2a$10$/JK40S2qyh15carMvuyGw.S1j78nWn0ET5k8igHo6NPcRLijE0Q5C', 'UserC', false);
 
 INSERT INTO address(address_line_1, city, country, user_id)
-    VALUES ('123 Tester Hill', 'Testerton', 'England', 1)
-    , ('312 Spring Boot', 'Hibernate', 'England', 3);
+    VALUES ('123 Tester Hill', 'Testerton', 'England', 10002)
+    , ('312 Spring Boot', 'Hibernate', 'England', 10003),('jln. Welas', 'Flores', 'Indonesia', 10004),('312 Java', 'Yogyakarta', 'Afrika', 10008);
 
 INSERT INTO product (name, short_description, long_description, price)
     VALUES ('Product #1', 'Product one short description.', 'This is a very long description of product #1.', 5.50)
