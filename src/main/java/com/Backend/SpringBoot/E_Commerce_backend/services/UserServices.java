@@ -144,6 +144,9 @@ public class UserServices {
             user.setPassword(encryptionServices.encryptPassword(body.getPassword()));
         }
     }
+    public boolean userHasPermissionToUser(LocalUser user,Long id){
+        return user.getId()==id;
+    }
 
 }
 /*
