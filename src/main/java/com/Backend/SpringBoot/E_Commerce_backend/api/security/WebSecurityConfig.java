@@ -20,6 +20,7 @@ Metode securityFilterChain: menggunakan objek HttpSecurity untuk mengonfigurasi 
 */
 @Configuration
 public class WebSecurityConfig {
+
     private JWTRequestFilter jwtRequestFilter;
 
     public WebSecurityConfig(JWTRequestFilter jwtRequestFilter) {
