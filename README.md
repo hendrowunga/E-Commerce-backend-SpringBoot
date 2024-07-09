@@ -259,7 +259,7 @@ public class UserController {
 
 ## Hubungi Saya
 
-Untuk pertanyaan lebih lanjut atau diskusi, silakan hubungi saya melalui email di **hendrowunga073@gmail.com.com**.
+Untuk pertanyaan lebih lanjut atau diskusi, silakan hubungi saya melalui email di **hendrowunga073@gmail.com**.
 
 
 
