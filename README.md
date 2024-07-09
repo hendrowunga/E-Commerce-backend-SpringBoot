@@ -87,7 +87,7 @@ Proyek ini adalah backend untuk aplikasi e-commerce yang dibangun menggunakan Sp
 1. **Clone repository ini:**
 
    ```
-   git clone https://github.com/username/repository.git
+   git clone https://github.com/hendrowunga/E-Commerce-backend-SpringBoot.git
    cd repository
    ```
 
